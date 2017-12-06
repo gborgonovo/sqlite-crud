@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta charset="UTF-8">
+	<meta name="description" content="CRUD for SQLite">
+	<meta name="keywords" content="CRUD, SQLite">
+	<meta name="author" content="Giorgio Borgonovo">
+
+	<title>CRUD for SQLite</title>
+	
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+	<script>
+	$(document).ready(function(){
+		$('[data-toggle="tooltip"]').tooltip(); 
+		$('[data-toggle="popover"]').popover(); 
+		$(".alert-dismissable").delay(4000).slideUp(200, function() {
+				$(this).alert('close');
+		});
+	});
+	</script>
+	
+	<style>
+		.row-selected {
+			background-color: #bbb;
+			padding: 5px;
+		}
+		hr {
+			border-top: 1px solid #8c8b8b
+		}
+	</style>
+
+</head>
+
+<body>
+<div class="container">
+<nav class="navbar navbar-default">
+	<div class="container-fluid">
+		<ul class="nav navbar-nav">
+			{foreach $tables as $title=>$table}
+			<li class="{if $title eq "$seltable"}active{/if}"><a href="{$urlbase}?t={$title}&id=0">{$title}</a></li>
+			{/foreach}
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+      <li><a href="{$urlbase}?t={$seltable}&id=-1"><span class="glyphicon glyphicon-plus"></span> Crea</a></li>
+    </ul>
+
+	</div>
+</nav>
+<br />
+{*
+		INSERT
+*}
+
+{if $selid eq -1}
+<form action="{$urlbase}?t={$smarty.get.t}" method="post">
+	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>
+{/if}
+{foreach $tables.{$seltable} as $field=>$type}
+	{if $type=="INPUT"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="INPUT" class="form-control" id="{$field}" name="{$field}">
+	</div>
+	{elseif $type=="TEXTAREA"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<textarea class="form-control" id="{$field}" name="{$field}" rows="5" ></textarea>
+	</div>
+	{elseif $type=="NUMBER"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1">
+	</div>
+	{elseif $type=="READ"}
+
+	{else}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+	</div>
+	{/if}
+{/foreach}
+	<input type="submit" name="submit" value="Crea" class="btn btn-success">
+	<a href="{$urlbase}?t={$smarty.get.t}&id=0" class="btn btn-warning">Annulla</a>
+
+</form>
+
+{else}
+{*
+		List and UPDATE
+*}
+{* Lists all rows *}
+{foreach $mydata as $md}
+<div id="row-{$md.rowid}">
+
+{* Lists fields of the row, detects if there is anything to change with form *}
+{if $md.rowid eq $selid}
+<form action="{$url}#row-{$md.rowid}" method="post" class="row-selected">
+	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>
+{/if}
+	<input type="hidden" name="rowid" value="{$md.rowid}">
+{foreach $tables.{$seltable} as $field=>$type}
+	{if $type=="INPUT"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="INPUT" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+	</div>
+	{elseif $type=="TEXTAREA"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<textarea class="form-control" id="{$field}"name="{$field}" rows="5" >{$md.{$field}}</textarea>
+	</div>
+	{elseif $type=="NUMBER"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1" value="{$md.{$field}}">
+	</div>
+	{elseif $type=="READ"}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="text" class="form-control" id="{$field}" name="{$field}" readonly value="{$md.{$field}}">
+	</div>
+	{else}
+	<div class="form-group">
+		<label for="{$field}">{$field}:</label>
+		<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+	</div>
+	{/if}
+{/foreach}
+	<input type="submit" name="submit" value="Salva" class="btn btn-success">
+	<a href="{$urlbase}?t={$smarty.get.t}&id=0#row-{$md.rowid}" class="btn btn-warning">Annulla</a>
+
+</form>
+{else}
+<a href="{$urlbase}?t={$smarty.get.t}&id={$md.rowid}#row-{$md.rowid}" class="btn btn-danger"><span class="glyphicon glyphicon-pencil"></span> Modifica</a><br />
+{foreach $tables.{$seltable} as $field=>$type}
+	{if $type=="INPUT"}
+	<b>{$field}:</b> {$md.{$field}}<br />
+	{elseif $type=="TEXTAREA"}
+	<b>{$field}:</b><br />
+	{$md.{$field}}<br />
+	{elseif $type=="NUMBER"}
+	<b>{$field}:</b> {$md.{$field}}<br />
+	{else}
+	<b>{$field}:</b> {$md.{$field}}<br />
+	{/if}
+{/foreach}
+
+{/if}
+</div>
+	<hr />
+{/foreach}
+{/if}
+</div>
+</body>
+</html>
+
