@@ -38,12 +38,19 @@
 		hr {
 			border-top: 1px solid #8c8b8b
 		}
+		h1 {
+			text-align: center;
+		}
 	</style>
 
 </head>
 
 <body>
 <div class="container">
+{if $isAuthorized}
+{* 
+	Is Autorized
+*}
 <nav class="navbar navbar-default">
 	<div class="container-fluid">
 		<ul class="nav navbar-nav">
@@ -52,6 +59,7 @@
 			{/foreach}
 		</ul>
 		<ul class="nav navbar-nav navbar-right">
+      <li><a href="{$urlbase}?id=-100"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
       <li><a href="{$urlbase}?t={$seltable}&id=-1"><span class="glyphicon glyphicon-plus"></span> Crea</a></li>
     </ul>
 
@@ -64,8 +72,7 @@
 
 {if $selid eq -1}
 <form action="{$urlbase}?t={$smarty.get.t}" method="post">
-	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>
-{/if}
+	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
 {foreach $tables.{$seltable} as $field=>$type}
 	{if $type=="INPUT"}
 	<div class="form-group">
@@ -161,6 +168,25 @@
 </div>
 	<hr />
 {/foreach}
+{/if}
+{else}
+{*
+	Is NOT Autorized
+*}
+<div id='loginBox'>
+<h1><span id='logo'>{$smarty.const.PROJECT}</span> <span id='version'>v{$smarty.const.VERSION}</span></h1>
+<div style='padding:15px; text-align:center;'>
+	{if $message}<div class="alert alert-warning alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
+<form action='{$urlbase}' method='post'>
+	Password: <input type='password' name='password'/><br/>
+<label><input type='checkbox' name='remember' value='yes' checked='checked'/>Remember password</label><br/><br/>
+<input type='submit' value='Login' class='btn'/>
+<input type='hidden' name='login' value='true' />
+</form>
+</div>
+</div>
+<br/>
+
 {/if}
 </div>
 </body>
