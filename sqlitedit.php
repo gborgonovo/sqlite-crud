@@ -150,6 +150,8 @@ if ($auth->isAuthorized())
 	$smarty->assign('url', basename($_SERVER['REQUEST_URI']));
 	$smarty->assign('urlbase', basename($_SERVER["PHP_SELF"]));
 	$smarty->assign('mydata', $mydata);
+	$smarty->assign('display', $display);
+	$smarty->assign('nrfields', $nrfields);
 
 } else {
 /*

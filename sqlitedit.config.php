@@ -11,9 +11,15 @@ $tables = array (
 		'rowid' => 'READ',
 		'title' => 'INPUT',
 		'author' => 'INPUT',
-		'year' => 'INPUT'
+		'year' => 'INPUT',
+		'editor' => 'INPUT',
+		'description' => 'TEXTAREA'
 	)
 );
+
+// list: show the list as table; block: show a list of full record
+$display = 'list';
+$nrfields = 4;
 
 /* ---- Advanced options ---- */
 

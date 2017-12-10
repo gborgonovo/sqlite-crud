@@ -48,145 +48,172 @@
 <body>
 <div class="container">
 {if $isAuthorized}
-{* 
-	Is Autorized
-*}
-<nav class="navbar navbar-default">
-	<div class="container-fluid">
-		<ul class="nav navbar-nav">
-			{foreach $tables as $title=>$table}
-			<li class="{if $title eq "$seltable"}active{/if}"><a href="{$urlbase}?t={$title}&id=0">{$title}</a></li>
-			{/foreach}
-		</ul>
-		<ul class="nav navbar-nav navbar-right">
-      <li><a href="{$urlbase}?id=-100"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
-      <li><a href="{$urlbase}?t={$seltable}&id=-1"><span class="glyphicon glyphicon-plus"></span> Crea</a></li>
-    </ul>
+	{* 
+		Is Autorized
+	*}
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<ul class="nav navbar-nav">
+				{foreach $tables as $title=>$table}
+				<li class="{if $title eq "$seltable"}active{/if}"><a href="{$urlbase}?t={$title}&id=0">{$title}</a></li>
+				{/foreach}
+			</ul>
+			<ul class="nav navbar-nav navbar-right">
+				<li><a href="{$urlbase}?id=-100"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+				<li><a href="{$urlbase}?t={$seltable}&id=-1"><span class="glyphicon glyphicon-plus"></span> Crea</a></li>
+			</ul>
 
-	</div>
-</nav>
-<br />
-{*
-		INSERT
-*}
+		</div>
+	</nav>
+	<br />
 
-{if $selid eq -1}
-<form action="{$urlbase}?t={$smarty.get.t}" method="post">
-	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
-{foreach $tables.{$seltable} as $field=>$type}
-	{if $type=="INPUT"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="INPUT" class="form-control" id="{$field}" name="{$field}">
-	</div>
-	{elseif $type=="TEXTAREA"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<textarea class="form-control" id="{$field}" name="{$field}" rows="5" ></textarea>
-	</div>
-	{elseif $type=="NUMBER"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1">
-	</div>
-	{elseif $type=="READ"}
+	{if $selid eq -1}
+		{*
+				INSERT
+		*}
+		<form action="{$urlbase}?t={$smarty.get.t}" method="post">
+			{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
+		{foreach $tables.{$seltable} as $field=>$type}
+			{if $type=="INPUT"}
+			<div class="form-group">
+				<label for="{$field}">{$field}:</label>
+				<input type="INPUT" class="form-control" id="{$field}" name="{$field}">
+			</div>
+			{elseif $type=="TEXTAREA"}
+			<div class="form-group">
+				<label for="{$field}">{$field}:</label>
+				<textarea class="form-control" id="{$field}" name="{$field}" rows="5" ></textarea>
+			</div>
+			{elseif $type=="NUMBER"}
+			<div class="form-group">
+				<label for="{$field}">{$field}:</label>
+				<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1">
+			</div>
+			{elseif $type=="READ"}
+
+			{else}
+			<div class="form-group">
+				<label for="{$field}">{$field}:</label>
+				<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+			</div>
+			{/if}
+		{/foreach}
+			<input type="submit" name="submit" value="Crea" class="btn btn-success">
+			<a href="{$urlbase}?t={$smarty.get.t}&id=0" class="btn btn-warning">Annulla</a>
+
+		</form>
 
 	{else}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
-	</div>
+		{*
+				List and UPDATE
+		*}
+		{* Lists all rows *}
+		{if $display eq 'list'}
+			<div class="table-responsive">          
+
+			<table class="table">
+				<thead>
+					<tr>
+					{foreach $tables.{$seltable} as $field=>$type}
+						{if $type@iteration gt $nrfields} {break} {/if}
+
+						<th>{$field}</th>
+					{/foreach}
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+		{/if}
+		{foreach $mydata as $md}
+
+			{* Lists fields of the row, detects if there is anything to change with form *}
+			{if $md.rowid eq $selid}
+				<form action="{$url}#row-{$md.rowid}" method="post" class="row-selected">
+					{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
+					<input type="hidden" name="rowid" value="{$md.rowid}">
+					{foreach $tables.{$seltable} as $field=>$type}
+						{if $type=="INPUT"}
+							<div class="form-group">
+								<label for="{$field}">{$field}:</label>
+								<input type="INPUT" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+							</div>
+						{elseif $type=="TEXTAREA"}
+							<div class="form-group">
+								<label for="{$field}">{$field}:</label>
+								<textarea class="form-control" id="{$field}"name="{$field}" rows="5" >{$md.{$field}}</textarea>
+							</div>
+						{elseif $type=="NUMBER"}
+							<div class="form-group">
+								<label for="{$field}">{$field}:</label>
+								<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1" value="{$md.{$field}}">
+							</div>
+						{elseif $type=="READ"}
+							<div class="form-group">
+								<label for="{$field}">{$field}:</label>
+								<input type="text" class="form-control" id="{$field}" name="{$field}" readonly value="{$md.{$field}}">
+							</div>
+						{else}
+							<div class="form-group">
+								<label for="{$field}">{$field}:</label>
+								<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+							</div>
+						{/if}
+					{/foreach}
+					<input type="submit" name="submit" value="Salva" class="btn btn-success">
+					<a href="{$urlbase}?t={$smarty.get.t}&id=0#row-{$md.rowid}" class="btn btn-warning">Annulla</a>
+				</form>
+			{else}
+				<div id="row-{$md.rowid}">
+				{if $display eq 'list'}
+					<tr>
+					{foreach $tables.{$seltable} as $field=>$type}
+						{if $type@iteration gt $nrfields} {break} {/if}
+						<td>{$md.{$field}}</td>
+					{/foreach}
+						<td><a href="{$urlbase}?t={$smarty.get.t}&id={$md.rowid}#row-{$md.rowid}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-pencil"></span> Modifica</a></td>
+					</tr>
+				{else}
+					<a href="{$urlbase}?t={$smarty.get.t}&id={$md.rowid}#row-{$md.rowid}" class="btn btn-danger"><span class="glyphicon glyphicon-pencil"></span> Modifica</a><br />
+					{foreach $tables.{$seltable} as $field=>$type}
+						{if $type=="INPUT"}
+						<b>{$field}:</b> {$md.{$field}}<br />
+						{elseif $type=="TEXTAREA"}
+						<b>{$field}:</b><br />
+						{$md.{$field}}<br />
+						{elseif $type=="NUMBER"}
+						<b>{$field}:</b> {$md.{$field}}<br />
+						{else}
+						<b>{$field}:</b> {$md.{$field}}<br />
+						{/if}
+					{/foreach}
+					<hr />
+				{/if}
+				</div>
+			{/if}
+		{/foreach}
+		{if $display eq 'list'}
+				</tbody>
+			</table>
+			</div>
+		</div>
+		{/if}
 	{/if}
-{/foreach}
-	<input type="submit" name="submit" value="Crea" class="btn btn-success">
-	<a href="{$urlbase}?t={$smarty.get.t}&id=0" class="btn btn-warning">Annulla</a>
-
-</form>
-
 {else}
-{*
-		List and UPDATE
-*}
-{* Lists all rows *}
-{foreach $mydata as $md}
-<div id="row-{$md.rowid}">
-
-{* Lists fields of the row, detects if there is anything to change with form *}
-{if $md.rowid eq $selid}
-<form action="{$url}#row-{$md.rowid}" method="post" class="row-selected">
-	{if $message}<div class="alert alert-success alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>
-{/if}
-	<input type="hidden" name="rowid" value="{$md.rowid}">
-{foreach $tables.{$seltable} as $field=>$type}
-	{if $type=="INPUT"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="INPUT" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
+	{*
+		Is NOT Autorized
+	*}
+	<div id='loginBox'>
+	<h1><span id='logo'>{$smarty.const.PROJECT}</span> <span id='version'>v{$smarty.const.VERSION}</span></h1>
+		<div style='padding:15px; text-align:center;'>
+			{if $message}<div class="alert alert-warning alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
+			<form action='{$urlbase}' method='post'>
+				Password: <input type='password' name='password'/><br/>
+				<label><input type='checkbox' name='remember' value='yes' checked='checked'/>Remember password</label><br/><br/>
+				<input type='submit' value='Login' class='btn'/>
+				<input type='hidden' name='login' value='true' />
+			</form>
+		</div>
 	</div>
-	{elseif $type=="TEXTAREA"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<textarea class="form-control" id="{$field}"name="{$field}" rows="5" >{$md.{$field}}</textarea>
-	</div>
-	{elseif $type=="NUMBER"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="number" class="form-control" id="{$field}" name="{$field}" max="100" step="1" value="{$md.{$field}}">
-	</div>
-	{elseif $type=="READ"}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="text" class="form-control" id="{$field}" name="{$field}" readonly value="{$md.{$field}}">
-	</div>
-	{else}
-	<div class="form-group">
-		<label for="{$field}">{$field}:</label>
-		<input type="text" class="form-control" id="{$field}" name="{$field}" value="{$md.{$field}}">
-	</div>
-	{/if}
-{/foreach}
-	<input type="submit" name="submit" value="Salva" class="btn btn-success">
-	<a href="{$urlbase}?t={$smarty.get.t}&id=0#row-{$md.rowid}" class="btn btn-warning">Annulla</a>
-
-</form>
-{else}
-<a href="{$urlbase}?t={$smarty.get.t}&id={$md.rowid}#row-{$md.rowid}" class="btn btn-danger"><span class="glyphicon glyphicon-pencil"></span> Modifica</a><br />
-{foreach $tables.{$seltable} as $field=>$type}
-	{if $type=="INPUT"}
-	<b>{$field}:</b> {$md.{$field}}<br />
-	{elseif $type=="TEXTAREA"}
-	<b>{$field}:</b><br />
-	{$md.{$field}}<br />
-	{elseif $type=="NUMBER"}
-	<b>{$field}:</b> {$md.{$field}}<br />
-	{else}
-	<b>{$field}:</b> {$md.{$field}}<br />
-	{/if}
-{/foreach}
-
-{/if}
-</div>
-	<hr />
-{/foreach}
-{/if}
-{else}
-{*
-	Is NOT Autorized
-*}
-<div id='loginBox'>
-<h1><span id='logo'>{$smarty.const.PROJECT}</span> <span id='version'>v{$smarty.const.VERSION}</span></h1>
-<div style='padding:15px; text-align:center;'>
-	{if $message}<div class="alert alert-warning alert-dismissable"><a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a><strong>{$message}</strong></div>{/if}
-<form action='{$urlbase}' method='post'>
-	Password: <input type='password' name='password'/><br/>
-<label><input type='checkbox' name='remember' value='yes' checked='checked'/>Remember password</label><br/><br/>
-<input type='submit' value='Login' class='btn'/>
-<input type='hidden' name='login' value='true' />
-</form>
-</div>
-</div>
-<br/>
-
 {/if}
 </div>
 </body>
